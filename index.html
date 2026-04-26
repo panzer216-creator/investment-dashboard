@@ -3,29 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SK하이닉스 100조 투자 대응 매트릭스</title>
+    <title>산업 병목 추적 & 투자 매트릭스 v3.0</title>
     <style>
         :root {
-            --primary: #2c3e50; --accent: #e67e22; --bg: #f0f2f5;
+            --primary: #2c3e50; --accent: #e67e22; --bg: #f5f7fa;
             --card: #ffffff; --border: #dcdde1; --text: #2f3640;
             --strong-buy: #eb4d4b; --buy: #2ecc71; --wait: #95a5a6;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); padding: 15px; }
-        .container { max-width: 1000px; margin: 0 auto; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 15px; line-height: 1.4; }
+        .container { max-width: 1100px; margin: 0 auto; }
         
-        .alert-box { background: #ff7675; color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; line-height: 1.4; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { font-size: 1.3rem; color: var(--primary); }
-
-        .group-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        /* Header & Summary Table */
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        .header h1 { font-size: 1.5rem; color: var(--primary); }
+        
+        .summary-container { background: white; border-radius: 12px; padding: 15px; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow-x: auto; }
+        .summary-title { font-weight: bold; margin-bottom: 10px; color: var(--accent); border-left: 4px solid var(--accent); padding-left: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 600px; }
+        th { background: #f8f9fa; color: var(--primary); font-weight: bold; padding: 10px; border: 1px solid var(--border); text-align: center; }
+        td { padding: 10px; border: 1px solid var(--border); vertical-align: top; }
+        .td-group { background: #fdfdfd; font-weight: bold; text-align: center; width: 100px; }
+        
+        /* Group Sections */
+        .group-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         .group-header { border-left: 6px solid var(--accent); padding-left: 12px; margin-bottom: 15px; }
         .group-header h2 { font-size: 1.1rem; color: var(--primary); }
-        
+        .group-desc { font-size: 0.8rem; color: #636e72; margin-bottom: 15px; background: #f1f4f8; padding: 10px; border-radius: 8px; }
+
+        /* Item List & Accordion */
         .item-list { display: flex; flex-direction: column; gap: 10px; }
-        .item-row { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-        .item-top { display: flex; justify-content: space-between; align-items: center; padding: 15px; cursor: pointer; background: white; }
-        .corp-name { font-weight: bold; font-size: 1.05rem; }
+        .item-row { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: white; }
+        .item-top { display: flex; justify-content: space-between; align-items: center; padding: 15px; cursor: pointer; }
+        .corp-name { font-weight: bold; font-size: 1rem; }
         .hot-tag { background: #fab1a0; color: #d63031; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; margin-left: 5px; font-weight: 900; }
         .status-pill { font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; color: white; font-weight: bold; }
 
@@ -37,74 +47,151 @@
         .label { font-size: 0.65rem; color: #7f8c8d; display: block; }
         .val { font-size: 0.9rem; font-weight: bold; }
         
-        .why-box { background: #ecf0f1; padding: 12px; border-radius: 8px; font-size: 0.85rem; border-left: 4px solid var(--primary); }
-        
+        .why-box { background: #ecf0f1; padding: 12px; border-radius: 8px; font-size: 0.85rem; border-left: 4px solid var(--primary); line-height: 1.5; }
+        .link-row { display: flex; gap: 8px; margin-top: 15px; }
+        .btn-link { flex: 1; text-align: center; font-size: 0.75rem; padding: 8px; border-radius: 5px; text-decoration: none; border: 1px solid var(--accent); color: var(--accent); font-weight: bold; }
+
         @media (max-width: 600px) { .grid-data { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="alert-box">
-        <strong>🚨 핵심 투자 시그널:</strong> SK하이닉스 100조 Capex 집행 로직 반영. 
-        청주 P&T7(첨단 패키징) 및 용인 1기 팹 선행 인프라 수혜주 중심으로 매트릭스를 재편했습니다.
-    </div>
-
     <header class="header">
-        <h1>🏗️ 산업 병목 추적 & 투자 매트릭스 v2.0</h1>
+        <h1>🏗️ 4대 산업 전략 매트릭스 및 투자 대시보드</h1>
     </header>
 
-    <div class="group-card">
+    <div class="summary-container">
+        <div class="summary-title">글로벌 매크로 투자 전략 요약</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>그룹</th>
+                    <th>🎯 투자 기준 (Why)</th>
+                    <th>🏢 집중 산업/기업 (What)</th>
+                    <th>⚠️ 트리거 / 리스크 (When)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-group">A. 디지털</td>
+                    <td>수율 개선 및 후공정 병목 해결.<br>SK하이닉스 100조 Capex 낙수효과.</td>
+                    <td>첨단 패키징, 검사/소켓 장비<br>(인텍플러스, 티에스이, HPSP 등)</td>
+                    <td>[T] AI 칩 퀄 테스트 통과 공시<br>[R] IT 수요 침체 장기화</td>
+                </tr>
+                <tr>
+                    <td class="td-group">B. 인프라</td>
+                    <td>초대형 팹 가동 선행 인프라.<br>수주잔고 비율 2.0 이상의 가시성.</td>
+                    <td>초고압 변압기, 전선, 전력망<br>(HD현대일렉, LS마린솔루션 등)</td>
+                    <td>[T] 구리 가격 상승 및 북미 교체 가속<br>[R] 금리 인하 지연 및 PF 축소</td>
+                </tr>
+                <tr>
+                    <td class="td-group">C. 패권</td>
+                    <td>지정학적 파편화 및 공급망 블록화.<br>국가 주도 G2G 수주 및 판가 전가력.</td>
+                    <td>방산, 우주항공, 에너지 배관<br>(풍산, 한화시스템, 성광벤드 등)</td>
+                    <td>[T] 글로벌 분쟁 및 보조금 집행<br>[R] 지정학적 긴장 일시 완화</td>
+                </tr>
+                <tr>
+                    <td class="td-group">D. 조선부품</td>
+                    <td>도크 부족 및 환경 규제 수혜.<br>OPEX 기반의 고마진 사이클 진입.</td>
+                    <td>친환경 선박 엔진, 보냉재<br>(한화엔진, 동성화인텍 등)</td>
+                    <td>[T] 신조선가 고점 유지 및 CII 규제<br>[R] 중국 조선소 저가 공세</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="group-card" id="ga">
         <div class="group-header"><h2>A. 디지털 고도화 (HBM 패키징 & 선단 공정)</h2></div>
+        <div class="group-desc">SK하이닉스의 100조 투자가 집중되는 패키징 전용 팹(P&T7) 및 선단 공정 수율 병목 해결 구간입니다.</div>
         <div class="item-list" id="list-a"></div>
     </div>
 
-    <div class="group-card">
+    <div class="group-card" id="gb">
         <div class="group-header"><h2>B. 물리적 인프라 (초대형 팹 전력 공급망)</h2></div>
+        <div class="group-desc">팹 건설 전 선행되어야 하는 전력망 확충 및 북미 인프라 교체 수요의 직접 수혜 구간입니다.</div>
         <div class="item-list" id="list-b"></div>
     </div>
-    
+
+    <div class="group-card" id="gc">
+        <div class="group-header"><h2>C. 글로벌 패권 (안보망 및 인프라 리쇼어링)</h2></div>
+        <div class="group-desc">지정학적 리쇼어링 및 국가 안보 중심의 방산/에너지 인프라 구축의 실질적 수혜 구간입니다.</div>
+        <div class="item-list" id="list-c"></div>
     </div>
+
+    <div class="group-card" id="gd">
+        <div class="group-header"><h2>D. 조선 부품 (OPEX 스프레드 극대화)</h2></div>
+        <div class="group-desc">도크 부족에 따른 엔진/기자재 공급자 우위 및 환경 규제발 고마진 엔진 교체 사이클입니다.</div>
+        <div class="item-list" id="list-d"></div>
+    </div>
+</div>
 
 <script>
     const investmentData = {
         'list-a': [
-            {n:"인텍플러스", hot:true, s:"강력 매수", v:"35.0 / 3.0", r:45, p:1.2, o:"+5.2%p", b:"1.8", l:"청주 P&T7(패키징 전용 팹) 19조 투자의 직접 수혜. 외관 검사 장비 쇼티지 예상."},
-            {n:"티에스이", hot:true, s:"강력 매수", v:"48.0 / 2.5", r:52, p:1.1, o:"+6.3%p", b:"1.5", l:"하이닉스 WT(Wafer Test) 라인 7개층 증설의 최대 수혜. 테스트 소켓 공급 병목 발생 구간."},
-            {n:"HPSP", hot:true, s:"즉시 진입", v:"45.0 / 12.0", r:55, p:1.4, o:"+50%", b:"2.1", l:"용인 1기 팹 EUV 선단 공정 필수 장비. 고압 수소 어닐링 독점력 기반 마진 극대화."},
-            {n:"SK하이닉스", hot:false, s:"추세 추종", v:"20.2 / 1.8", r:65, p:0.9, o:"+15%p", b:"0.8", l:"100조 투자 주체. 1분기 영업이익 40조 기반의 압도적 현금 동원력 및 HBM 주도권."}
+            {n:"인텍플러스", hot:true, s:"강력 매수", v:"35.0 / 3.0", r:45, p:1.2, o:"+5.2%p", b:"1.8", l:"하이닉스 청주 P&T7(패키징 전용 팹) 19조 투자의 직접 수혜. 외관 검사 장비 쇼티지 예상 구간."},
+            {n:"티에스이", hot:true, s:"강력 매수", v:"48.0 / 2.5", r:52, p:1.1, o:"+6.3%p", b:"1.5", l:"WT(Wafer Test) 라인 7개층 증설로 인한 테스트 소켓 수요 폭증. 실적 퀀텀 점프 가시화."},
+            {n:"HPSP", hot:true, s:"즉시 진입", v:"45.0 / 12.0", r:55, p:1.4, o:"+50%", b:"2.1", l:"용인 1기 팹 EUV 선단 공정 필수 장비. 고압 수소 어닐링 독점력 기반 마진 방어력 최상위."},
+            {n:"SK하이닉스", hot:false, s:"추세 추종", v:"20.2 / 1.8", r:65, p:0.9, o:"+15%p", b:"0.8", l:"100조 투자 주체이자 수혜자. 압도적 현금 동원력 기반 HBM 주도권 고착화 사이클 진입."},
+            {n:"삼성전자", hot:false, s:"안전마진", v:"15.2 / 1.3", r:45, p:0.8, o:"+8.2%p", b:"0.4", l:"PBR 1.2배 수준의 역사적 하단. HBM 퀄 테스트 통과 시 밸류에이션 리레이팅 트리거."},
+            {n:"삼성전기", hot:false, s:"저평가 매수", v:"84.1 / 1.2", r:55, p:1.1, o:"+2.1%p", b:"0.5", l:"AI 서버용 FC-BGA 비중 확대 및 전장용 MLCC 실적 턴어라운드 확인 구간."},
+            {n:"한미반도체", hot:false, s:"조정 대기", v:"85.0 / 15.0", r:82, p:1.8, o:"+20%p", b:1.2, l:"장기적 우상향이나 현재 RSI 과열 구간. 60일선 안착 시점까지 비중 조절 필요."},
+            {n:"이수페타시스", hot:false, s:"과열 대기", v:"25.4 / 4.2", r:75, p:1.1, o:"+3.5%p", b:1.1, l:"AI 가속기용 기판 수요는 견조하나 단기 수급 과열 양상. RSI 40 도달 시 재진입 검토."}
         ],
         'list-b': [
-            {n:"HD현대일렉트릭", hot:true, s:"강력 매수", v:"30.1 / 5.2", r:65, p:1.2, o:"+4.5%p", b:"3.8", l:"용인 클러스터 600조 투자의 첫 단추인 초고압 변압기 독점 공급. 수주잔고 탄력 역대 최고."},
-            {n:"LS마린솔루션", hot:true, s:"즉시 진입", v:"18.5 / 2.1", r:48, p:0.9, o:"+3.2%p", b:"2.5", l:"서해안/용인 전력망 연결 및 해상풍력 인프라 확대 수혜. 그룹 내 에너지 밸류체인 핵심."},
-            {n:"LS", hot:false, s:"즉시 진입", v:"8.5 / 0.7", r:60, p:0.6, o:"+1.8%p", b:"1.5", l:"PBR 1.0 미만 저평가 메리트 + 전력망 확충에 따른 초고압 케이블 수주 가속화."}
+            {n:"HD현대일렉트릭", hot:true, s:"강력 매수", v:"30.1 / 5.2", r:65, p:1.2, o:"+4.5%p", b:"3.8", l:"용인 클러스터 전력 인프라 및 북미 교체 수요의 핵심. 수주잔고 비율 3.5 이상으로 실적 확정."},
+            {n:"LS마린솔루션", hot:true, s:"즉시 진입", v:"18.5 / 2.1", r:48, p:0.9, o:"+3.2%p", b:"2.5", l:"용인 전력망 연결 및 해상풍력 인프라 확대의 실질적 수혜. 그룹 내 에너지 시너지 극대화."},
+            {n:"효성중공업", hot:false, s:"낙폭 과대", v:"12.1 / 1.1", r:45, p:0.7, o:"+4.1%p", b:"3.2", l:"변압기 호황 속 상대적 저평가 매력. 120일선 지지 확인 시 강력한 반등 모멘텀 확보."},
+            {n:"LS", hot:false, s:"강력 매수", v:"8.5 / 0.7", r:60, p:0.6, o:"+1.8%p", b:1.5, l:"PBR 1.0 미만 딥밸류 메리트. 구리 가격 인플레를 판가에 가장 효율적으로 전가하는 구조."},
+            {n:"비에이치아이", hot:false, s:"관심 보유", v:"18.0 / 1.8", r:55, p:1.0, o:"+2.0%p", b:2.1, l:"정부 원전 정책 및 대형 수주 가시화 시점 대기. 수주 기반의 안정적 캐시플로우 확보."},
+            {n:"LS ELECT", hot:false, s:"관망 대기", v:"22.5 / 2.2", r:78, p:1.2, o:"+3.2%p", b:1.8, l:"북미 모멘텀은 유효하나 기술적 조정 구간 진입. PER 15배 회귀 시 매수 타이밍 확보."}
+        ],
+        'list-c': [
+            {n:"성광벤드", hot:true, s:"딥밸류 매수", v:"9.5 / 0.6", r:40, p:0.8, o:"+2.1%p", b:1.8, l:"에너지 안보망 구축을 위한 피팅 수요 반등. 청산가치 수준의 주가로 하방 경직성 강력."},
+            {n:"풍산", hot:true, s:"구조적 수혜", v:"8.2 / 0.7", r:65, p:0.5, o:"+3.2%p", b:1.2, l:"구리 가격 우상향 및 글로벌 탄약 쇼티지 지속. 방산 부문 수주 가속화로 실적 상향."},
+            {n:"LIG넥스원", hot:false, s:"과열 대기", v:"20.2 / 3.1", r:78, p:1.1, o:"+2.8%p", b:4.2, l:"수주잔고는 역대 최대이나 단기 급등에 따른 차익 실현 욕구 강함. RSI 50 도달 대기."},
+            {n:"한화시스템", hot:false, s:"비중 확대", v:"15.4 / 1.2", r:50, p:0.9, o:"+1.5%p", b:2.5, l:"위성 및 해양 안보망 수혜. 하이닉스 인디애나 팹 착공 등 안보 공급망 재편의 핵심."},
+            {n:"태광", hot:false, s:"안전마진", v:"9.1 / 0.6", r:45, p:0.8, o:"+1.8%p", b:1.7, l:"피팅 업황 회복의 수혜. PBR 1.2배 도달 시까지 보유 전략 유효한 저평가 우량주."},
+            {n:"한화에어로", hot:false, s:"과열 대기", v:"25.1 / 3.5", r:82, p:1.2, o:"+4.2%p", b:3.8, l:"K-방산의 대장주이나 밸류에이션 부담 가중. 수출 공백기 리스크 점검하며 조정 시 진입."}
+        ],
+        'list-d': [
+            {n:"한화엔진", hot:true, s:"강력 추천", v:"12.3 / 1.8", r:60, p:0.7, o:"+6.2%p", b:2.6, l:"친환경 선박 엔진 교체(OPEX)의 독점적 지위. 저탄소 엔진 단가 상승에 따른 스프레드 극대화."},
+            {n:"동성화인텍", hot:true, s:"수익화 안정", v:"11.4 / 1.5", r:55, p:0.8, o:"+2.5%p", b:3.1, l:"LNG 보냉재 수주 사이클 정점 진입. 수주잔고 비율 3.1로 향후 3년치 먹거리 확보 완료."},
+            {n:"오리엔탈정공", hot:false, s:"후행 수혜", v:"15.1 / 1.2", r:50, p:0.9, o:"+3.1%p", b:1.6, l:"선박용 크레인 등 기자재 수혜주. 도크 가동률 상승에 따른 Q(물량) 증가 수혜주."},
+            {n:"고영", hot:false, s:"바닥 확인", v:"35.2 / 2.5", r:40, p:1.5, o:"바닥통과", b:0.7, l:"기존 검사장비 턴어라운드 및 뇌수술용 로봇 신사업 매출 가시화 시 멀티플 리레이팅 가능."},
+            {n:"세진중공업", hot:false, s:"점진 확대", v:"14.5 / 1.4", r:55, p:0.8, o:"+2.2%p", b:2.1, l:"데크하우스 및 외주 물량 증가 수혜. 조선사 공정 가속화에 따른 후방 물량 낙수효과 대기."},
+            {n:"HD현대마린", hot:false, s:"과열 대기", v:"45.2 / 8.2", r:85, p:2.1, o:"+5.1%p", b:"N/A", l:"애프터마켓(AS) 부문의 독보적 수익성은 인정하나 보호예수 해제 및 수급 리스크 존재."}
         ]
     };
 
     function render() {
         for (const [id, items] of Object.entries(investmentData)) {
-            const el = document.getElementById(id);
-            if(!el) continue;
+            const container = document.getElementById(id);
+            if(!container) continue;
             items.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'item-row';
-                const color = item.s.includes('강력') ? 'var(--strong-buy)' : 'var(--buy)';
+                const pillColor = item.s.includes('강력') || item.s.includes('추천') ? 'var(--strong-buy)' : 'var(--buy)';
                 
                 card.innerHTML = `
                     <div class="item-top" onclick="this.nextElementSibling.classList.toggle('active')">
                         <div class="corp-name">${item.n} ${item.hot ? '<span class="hot-tag">HOT 수혜</span>' : ''}</div>
-                        <div class="status-pill" style="background:${color}">${item.s}</div>
+                        <div class="status-pill" style="background:${pillColor}">${item.s}</div>
                     </div>
                     <div class="item-content">
                         <div class="grid-data">
-                            <div class="data-box"><span class="label">PER/PBR</span><span class="val">${item.v}</span></div>
+                            <div class="data-box"><span class="label">PER / PBR</span><span class="val">${item.v}</span></div>
                             <div class="data-box"><span class="label">RSI</span><span class="val">${item.r}</span></div>
-                            <div class="data-box"><span class="label">수주잔고</span><span class="val">${item.b}</span></div>
+                            <div class="data-box"><span class="label">수주잔고 비율</span><span class="val">${item.b}</span></div>
                         </div>
-                        <div class="why-box"><strong>투자 로직:</strong> ${item.l}</div>
+                        <div class="why-box"><strong>Why:</strong> ${item.l}</div>
+                        <div class="link-row">
+                            <a href="https://search.naver.com/search.naver?query=${item.n}+주가" target="_blank" class="btn-link">실시간 차트</a>
+                            <a href="https://dart.fss.or.kr/ds/search/main.do?textCrpNm=${item.n}" target="_blank" class="btn-link">DART 공시</a>
+                        </div>
                     </div>
                 `;
-                el.appendChild(card);
+                container.appendChild(card);
             });
         }
     }
