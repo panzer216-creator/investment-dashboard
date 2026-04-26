@@ -3,137 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>산업 병목 추적 & 투자 매트릭스 v3.3</title>
+    <title>산업 병목 추적 & 투자 매트릭스 v3.4</title>
     <style>
+        /* [1] 기본 테마 (Light Mode) 변수 */
         :root {
             --primary: #2c3e50; --accent: #e67e22; --bg: #f5f7fa;
             --card: #ffffff; --border: #dcdde1; --text: #2f3640;
             --strong-buy: #eb4d4b; --buy: #2ecc71; --wait: #95a5a6;
             --box-bg: #f9f9f9; --why-bg: #ecf0f1; --th-bg: #f8f9fa;
+            --target-buy-bg: #e8f8f5; --target-sell-bg: #fdedec;
         }
+
+        /* [2] 다크 테마 (Dark Mode) 변수 */
         @media (prefers-color-scheme: dark) {
             :root {
                 --primary: #74b9ff; --accent: #fdcb6e; --bg: #1e272e;
                 --card: #2d3436; --border: #4a4a4a; --text: #dfe6e9;
                 --box-bg: #353b48; --why-bg: #2d3436; --th-bg: #2d3436;
+                --target-buy-bg: rgba(46, 204, 113, 0.15); --target-sell-bg: rgba(235, 77, 75, 0.15);
             }
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); padding: 15px; line-height: 1.4; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 15px; line-height: 1.5; }
         .container { max-width: 1100px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
-        .header h1 { font-size: 1.4rem; color: var(--primary); }
-        .summary-container { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid var(--border); }
-        .summary-title { font-weight: bold; margin-bottom: 15px; color: var(--accent); border-left: 4px solid var(--accent); padding-left: 8px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { background: var(--th-bg); color: var(--primary); font-weight: bold; padding: 10px; border: 1px solid var(--border); text-align: center; }
-        td { padding: 10px; border: 1px solid var(--border); vertical-align: top; background: var(--card); }
-        .group-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid var(--border); }
-        .group-header { border-left: 6px solid var(--accent); padding-left: 12px; margin-bottom: 15px; }
-        .group-header h2 { font-size: 1.1rem; color: var(--primary); }
+        
+        /* Header & Info Box */
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
+        .header h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 10px; }
+        
+        .info-box { background: var(--card); border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 8px; padding: 15px; margin-bottom: 25px; font-size: 0.85rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .info-title { font-weight: bold; color: var(--primary); margin-bottom: 8px; font-size: 0.95rem; display: flex; align-items: center; gap: 5px; }
+        .info-text { color: var(--text); line-height: 1.6; }
+        .highlight { background: rgba(230, 126, 34, 0.2); padding: 2px 4px; border-radius: 4px; font-weight: bold; }
+
+        /* Group Sections */
+        .group-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid var(--border); }
+        .group-header { margin-bottom: 15px; }
+        .group-header h2 { font-size: 1.2rem; color: var(--primary); border-left: 6px solid var(--accent); padding-left: 10px; margin-bottom: 12px; }
+        
+        .group-strategy { background: var(--th-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 15px; font-size: 0.85rem; }
+        .group-strategy b { color: var(--accent); }
+        .group-strategy p { margin-bottom: 5px; }
+        .group-strategy p:last-child { margin-bottom: 0; }
+
+        /* Accordion Item List */
         .item-list { display: flex; flex-direction: column; gap: 10px; }
-        .item-row { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--card); }
+        .item-row { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--card); transition: all 0.2s; }
         .item-top { display: flex; justify-content: space-between; align-items: center; padding: 15px; cursor: pointer; }
-        .corp-name { font-weight: bold; font-size: 1rem; }
-        .hot-tag { background: rgba(235, 77, 75, 0.2); color: var(--strong-buy); font-size: 0.65rem; padding: 3px 6px; border-radius: 4px; margin-left: 5px; font-weight: 900; }
+        .item-top:hover { background: var(--box-bg); }
+        .corp-name { font-weight: bold; font-size: 1.05rem; }
+        .hot-tag { background: rgba(235, 77, 75, 0.15); color: var(--strong-buy); font-size: 0.65rem; padding: 3px 6px; border-radius: 4px; margin-left: 5px; font-weight: 900; }
         .status-pill { font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; color: #fff; font-weight: bold; }
+
+        /* Details Content */
         .item-content { display: none; padding: 15px; background: var(--box-bg); border-top: 1px solid var(--border); }
         .item-content.active { display: block; }
+        
+        /* Metrics Grid */
         .grid-data { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .data-box { background: var(--card); border: 1px solid var(--border); padding: 8px; border-radius: 6px; text-align: center; }
+        .data-box { background: var(--card); border: 1px solid var(--border); padding: 10px; border-radius: 6px; text-align: center; }
         .label { font-size: 0.65rem; color: var(--wait); display: block; margin-bottom: 4px; }
-        .val { font-size: 0.85rem; font-weight: bold; color: var(--primary); }
-        .why-box { background: var(--why-bg); padding: 12px; border-radius: 8px; font-size: 0.85rem; border-left: 4px solid var(--primary); line-height: 1.5; }
-        .link-row { display: flex; gap: 8px; margin-top: 15px; }
-        .btn-link { flex: 1; text-align: center; font-size: 0.75rem; padding: 8px; border-radius: 5px; text-decoration: none; border: 1px solid var(--accent); color: var(--accent); font-weight: bold; }
+        .val { font-size: 0.9rem; font-weight: bold; color: var(--primary); }
+        
+        /* Action Targets (Buy/Sell) */
+        .target-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        .target-box { padding: 10px 12px; border-radius: 6px; font-size: 0.85rem; border: 1px solid var(--border); }
+        .target-buy { background: var(--target-buy-bg); border-left: 4px solid var(--buy); }
+        .target-sell { background: var(--target-sell-bg); border-left: 4px solid var(--strong-buy); }
+
+        .why-box { background: var(--why-bg); padding: 12px; border-radius: 8px; font-size: 0.85rem; border-left: 4px solid var(--primary); margin-bottom: 15px; }
+        
+        /* Links */
+        .link-row { display: flex; gap: 10px; }
+        .btn-link { flex: 1; text-align: center; font-size: 0.8rem; padding: 10px; border-radius: 6px; text-decoration: none; border: 1px solid var(--accent); color: var(--accent); font-weight: bold; transition: 0.2s; }
+        .btn-link:hover { background: var(--accent); color: white; }
+
         @media (max-width: 600px) { 
             .grid-data { grid-template-columns: repeat(2, 1fr); } 
-            table, thead, tbody, th, td, tr { display: block; }
-            thead tr { display: none; }
-            td { border: none; border-bottom: 1px solid var(--border); position: relative; padding-left: 35%; padding-top: 12px; padding-bottom: 12px; }
-            td::before { position: absolute; top: 12px; left: 10px; width: 30%; font-weight: bold; color: var(--accent); font-size: 0.8rem; }
-            td:nth-of-type(1)::before { content: "그룹"; }
-            td:nth-of-type(2)::before { content: "중요 지표"; }
-            td:nth-of-type(3)::before { content: "집중 타깃"; }
-            td:nth-of-type(4)::before { content: "리스크/변수"; }
+            .target-container { gap: 5px; }
+            .target-box { padding: 8px 10px; font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
+
 <div class="container">
     <header class="header">
-        <h1>🏗️ 산업 병목 추적 & 투자 매트릭스 v3.3</h1>
+        <h1>🏗️ 산업 병목 추적 & 투자 매트릭스 v3.4</h1>
     </header>
-    <div class="summary-container">
-        <div class="summary-title">전략 요약: 그룹별 핵심 지표 분석 논리</div>
-        <table>
-            <thead>
-                <tr><th>그룹</th><th>🎯 중요 지표 (Priority)</th><th>🏢 집중 타깃 (What)</th><th>⚠️ 리스크/변수 (Risk)</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>A. 디지털</td><td><b>PEG, OPM YoY</b><br>(수율=수익 직결)</td><td>첨단 패키징, 수율 검사<br>(인텍플러스, 티에스이)</td><td>하이닉스 Capex 지연<br>선단 공정 수율 확보 실패</td></tr>
-                <tr><td>B. 인프라</td><td><b>수주잔고, 스마트머니</b><br>(실적 가시성 위주)</td><td>변압기, 해저케이블<br>(HD현대일렉, LS마린)</td><td>구리 인플레 꺾임<br>북미 인프라 예산 삭감</td></tr>
-                <tr><td>C. 패권</td><td><b>PBR, 수주잔고</b><br>(안전마진과 국가계약)</td><td>방산, 에너지 배관<br>(풍산, 한화시스템, 성광벤드)</td><td>지정학적 갈등 급격 완화<br>자국 우선주의 정책 변화</td></tr>
-                <tr><td>D. 조선부품</td><td><b>OPM YoY</b><br>(마진 턴어라운드)</td><td>친환경 엔진, 보냉재<br>(한화엔진, 동성화인텍)</td><td>신조선가 지수 하락<br>중국 조선소 추격 가속화</td></tr>
-            </tbody>
-        </table>
+
+    <div class="info-box">
+        <div class="info-title">💡 스마트 머니 (Smart Money) 판정 기준</div>
+        <div class="info-text">
+            단순 수급 노이즈를 필터링하기 위해 <b>하이브리드 로직(Hybrid Logic)</b>을 적용합니다.<br>
+            • <span class="highlight">추세(Direction)</span>: 외국인/기관의 20일 및 60일 누적 순매수 양전(+) 확인<br>
+            • <span class="highlight">파괴력(Trigger)</span>: 최근 5일 내 <b>거래대금 200% 이상 폭증</b>을 동반한 대량 순매수 유입일<br>
+            ※ 이 두 가지 조건이 교차하는 지점을 가장 강력한 매수 타점(Golden Trigger)으로 정의합니다.
+        </div>
     </div>
-    <div class="group-card" id="ga"><div class="group-header"><h2>A. 디지털 고도화</h2></div><div class="item-list" id="list-a"></div></div>
-    <div class="group-card" id="gb"><div class="group-header"><h2>B. 물리적 인프라</h2></div><div class="item-list" id="list-b"></div></div>
-    <div class="group-card" id="gc"><div class="group-header"><h2>C. 글로벌 패권</h2></div><div class="item-list" id="list-c"></div></div>
-    <div class="group-card" id="gd"><div class="group-header"><h2>D. 조선 부품</h2></div><div class="item-list" id="list-d"></div></div>
+
+    <div class="group-card" id="ga">
+        <div class="group-header">
+            <h2>A. 디지털 고도화 (HBM 패키징 & 선단 공정)</h2>
+            <div class="group-strategy">
+                <p>🎯 <b>핵심 지표:</b> PEG, OPM YoY</p>
+                <p>📝 <b>분석 논리:</b> SK하이닉스의 100조 Capex가 집중되는 구간. 수율 개선과 기술적 병목 해결이 핵심이므로, 고성장 대비 밸류에이션(PEG)과 수율 개선의 증거인 영업이익률(OPM) 변화에 가중치를 부여합니다.</p>
+            </div>
+        </div>
+        <div class="item-list" id="list-a"></div>
+    </div>
+
+    <div class="group-card" id="gb">
+        <div class="group-header">
+            <h2>B. 물리적 인프라 (초대형 팹 전력 공급망)</h2>
+            <div class="group-strategy">
+                <p>🎯 <b>핵심 지표:</b> 수주잔고비율, 스마트 머니</p>
+                <p>📝 <b>분석 논리:</b> 리드타임이 긴 인프라 산업의 특성상 향후 2~3년의 실적 가시성을 보여주는 '수주잔고비율'이 최우선입니다. 대형 자본이 움직이는 섹터로 스마트 머니의 추세 전환이 주가를 결정합니다.</p>
+            </div>
+        </div>
+        <div class="item-list" id="list-b"></div>
+    </div>
+
+    <div class="group-card" id="gc">
+        <div class="group-header">
+            <h2>C. 글로벌 패권 (안보망 및 리쇼어링)</h2>
+            <div class="group-strategy">
+                <p>🎯 <b>핵심 지표:</b> PBR, 수주잔고비율</p>
+                <p>📝 <b>분석 논리:</b> 자국 중심주의와 국가 주도 계약(G2G)이 근간입니다. 국가 자산 성격이 강해 하방 경직성을 보여주는 'PBR'과 장기 계약의 척도인 '수주잔고'가 핵심 판단 기준입니다.</p>
+            </div>
+        </div>
+        <div class="item-list" id="list-c"></div>
+    </div>
+
+    <div class="group-card" id="gd">
+        <div class="group-header">
+            <h2>D. 조선 부품 (OPEX 스프레드 극대화)</h2>
+            <div class="group-strategy">
+                <p>🎯 <b>핵심 지표:</b> OPM YoY</p>
+                <p>📝 <b>분석 논리:</b> 비용 절감 및 판가 인상(전가력)을 통한 턴어라운드 구간입니다. 저마진에서 고마진으로 넘어가는 수익성 팽창 폭(OPM 개선)이 주가 상승의 가장 큰 동력입니다.</p>
+            </div>
+        </div>
+        <div class="item-list" id="list-d"></div>
+    </div>
 </div>
+
 <script>
     const investmentData = {
         'list-a': [
-            {n:"인텍플러스", hot:true, s:"강력 매수", v:"35.0 / 3.0", r:45, p:1.2, o:"+5.2%p", b:"1.8", m:"유입", l:"청주 P&T7(패키징 팹) 투자의 핵심 수혜. OPM 개선폭이 수율 안정화의 증거로 작동."},
-            {n:"티에스이", hot:true, s:"강력 매수", v:"48.0 / 2.5", r:52, p:1.1, o:"+6.3%p", b:"1.5", m:"매집", l:"반도체 테스트 소켓 쇼티지 예상. PEG 1.1로 고성장 대비 밸류에이션 매력 충분."},
-            {n:"HPSP", hot:true, s:"즉시 진입", v:"45.0 / 12.0", r:55, p:1.4, o:"+50%", b:"2.1", m:"순매수", l:"용인 팹 EUV 공정 필수 장비. 독보적 OPM이 기술적 병목의 실체를 증명함."},
-            {n:"SK하이닉스", hot:false, s:"추세 추종", v:"20.2 / 1.8", r:65, p:0.9, o:"+15%p", b:"0.8", m:"매수우위", l:"100조 투자 주체. HBM 주도권 고착화로 인한 실적 퀀텀점프 구간."},
-            {n:"삼성전자", hot:false, s:"안전마진", v:"15.2 / 1.3", r:45, p:0.8, o:"+8.2%p", b:"0.4", m:"유입", l:"PBR 1.2배 역사적 저점. HBM 퀄 테스트 통과 시 PEG 0.8의 위력이 나타날 것."},
-            {n:"삼성전기", hot:false, s:"저평가 매수", v:"84.1 / 1.2", r:55, p:1.1, o:"+2.1%p", b:"0.5", m:"매집", l:"FC-BGA 고부가 비중 확대. 전장용 MLCC의 점진적 OPM 개선 확인."},
-            {n:"한미반도체", hot:false, s:"조정 대기", v:"85.0 / 15.0", r:82, p:1.8, o:"+20%p", b:1.2, m:"차익실현", l:"장기 성장은 확실하나 RSI 과열. 가격 조정 시 PEG 1.0 도달 시점이 재진입 타점."},
-            {n:"이수페타시스", hot:false, s:"과열 대기", v:"25.4 / 4.2", r:75, p:1.1, o:"+3.5%p", b:1.1, m:"매도우위", l:"AI 가속기 기판 수요는 견조. 단기 수급 과열 해소 시까지 대기."}
+            {n:"인텍플러스", hot:true, s:"강력 매수", v:"35.0 / 3.0", r:45, p:1.2, o:"+5.2%p", b:"1.8", m:"하이브리드 충족", buy:"PEG 1.0 미만 도달 및 20일선(거래량 동반) 안착 시", sell:"고객사 증설 지연 공시 또는 RSI 80 상향 돌파 시", l:"청주 P&T7 19조 투자의 직접 수혜. 패키징 외관 검사 병목 해결의 핵심 밸류체인."},
+            {n:"티에스이", hot:true, s:"강력 매수", v:"48.0 / 2.5", r:52, p:1.1, o:"+6.3%p", b:"1.5", m:"매집 진행 중", buy:"OPM 흑자폭 확대 확인 및 60일선 지지 시", sell:"경쟁사 단가 인하 압박 또는 분기 OPM 역성장 시", l:"WT 라인 7개층 증설로 테스트 소켓 수요 폭증. OPM 개선폭이 그룹 내 가장 강력할 전망."},
+            {n:"HPSP", hot:true, s:"즉시 진입", v:"45.0 / 12.0", r:55, p:1.4, o:"+50%", b:"2.1", m:"하이브리드 충족", buy:"외인 5일 연속 순매수 및 주가 20일선 골든크로스 시", sell:"독점 특허 소송 리스크 발생 또는 PEG 2.0 초과 시", l:"용인 1기 팹 선단 공정 필수 장비. 독보적 OPM이 기술적 병목의 실체를 증명."},
+            {n:"SK하이닉스", hot:false, s:"추세 추종", v:"20.2 / 1.8", r:65, p:0.9, o:"+15%p", b:"0.8", m:"추세 매수", buy:"RSI 50 부근 횡보 후 재상승 또는 PBR 1.5배 접근 시", sell:"글로벌 빅테크 AI Capex 하향 조정 리포트 발행 시", l:"100조 투자의 주체이자 수혜자. HBM 주도권 고착화로 인한 실적 퀀텀점프 구간."},
+            {n:"삼성전자", hot:false, s:"안전마진", v:"15.2 / 1.3", r:45, p:0.8, o:"+8.2%p", b:"0.4", m:"유입 초기", buy:"HBM 퀄 테스트 통과 공시 당일 (시장가 진입)", sell:"메모리 현물가 3주 연속 하락 및 PBR 1.8배 도달 시", l:"PBR 1.2배 수준의 역사적 하방 경직성. 모멘텀 발생 시 밸류에이션 리레이팅 확실."},
+            {n:"한미반도체", hot:false, s:"조정 대기", v:"85.0 / 15.0", r:82, p:1.8, o:"+20%p", b:"1.2", m:"차익 실현(매도)", buy:"기술적 조정으로 RSI 40 도달 및 60일선 지지 확인 시", sell:"현재 가격대에서 분할 매도 대응 (단기 과열 해소 필요)", l:"장기 성장은 확실하나 단기 밸류에이션 및 기술적 지표(RSI 82) 과열 상태."}
         ],
         'list-b': [
-            {n:"HD현대일렉트릭", hot:true, s:"강력 매수", v:"30.1 / 5.2", r:65, p:1.2, o:"+4.5%p", b:"3.8", l:"용인 팹 전력 공급망 핵심. 수주잔고비율 3.8은 향후 4년치 실적의 담보."},
-            {n:"LS마린솔루션", hot:true, s:"즉시 진입", v:"18.5 / 2.1", r:48, p:0.9, o:"+3.2%p", b:"2.5", l:"해저 전력망 및 신재생 연결 수혜. 스마트머니 유입이 추세 전환 신호."},
-            {n:"효성중공업", hot:false, s:"낙폭 과대", v:"12.1 / 1.1", r:45, p:0.7, o:"+4.1%p", b:"3.2", m:"유입시작", l:"변압기 호황 속 상대적 저평가(PBR). 수주잔고 기반 턴어라운드 가속화."},
-            {n:"LS", hot:false, s:"강력 매수", v:"8.5 / 0.7", r:60, p:0.6, o:"+1.8%p", b:"1.5", m:"순매수", l:"PBR 1.0 미만. 구리 가격 인플레를 OPM으로 방어하는 독보적 구조."},
-            {n:"비에이치아이", hot:false, s:"관심 보유", v:"18.0 / 1.8", r:55, p:1.0, o:"+2.0%p", b:"2.1", m:"중립", l:"원전 수주 모멘텀 대기. 수주잔고비율이 2.0 이상으로 안정적 하단 형성."},
-            {n:"LS ELECT", hot:false, s:"관망 대기", v:"22.5 / 2.2", r:78, p:1.2, o:"+3.2%p", b:"1.8", m:"차익실현", l:"북미 모멘텀 유효하나 RSI 조정 필요. PER 15배 회귀 시 재매수."}
+            {n:"HD현대일렉트릭", hot:true, s:"강력 매수", v:"30.1 / 5.2", r:65, p:1.2, o:"+4.5%p", b:"3.8", m:"하이브리드 충족", buy:"수주잔고비율 3.0 이상 유지 중 거래대금 200% 터진 날", sell:"월별 북미 변압기 수출 데이터 꺾임 확인 시", l:"용인 팹 전력 공급망의 1차 수혜. 수주잔고비율 3.8은 향후 4년간의 확정된 이익을 의미."},
+            {n:"LS마린솔루션", hot:true, s:"즉시 진입", v:"18.5 / 2.1", r:48, p:0.9, o:"+3.2%p", b:"2.5", m:"매집 진행 중", buy:"모회사(LS전선)와의 대규모 연계 수주 공시 시점", sell:"신재생 인프라 정부 예산 축소 또는 PBR 3.5배 초과 시", l:"해저 전력망 및 특수 인프라 연결의 그룹 내 턴키(Turn-key) 수혜 핵심 축."},
+            {n:"효성중공업", hot:false, s:"낙폭 과대", v:"12.1 / 1.1", r:45, p:0.7, o:"+4.1%p", b:"3.2", m:"유입 전환", buy:"120일선 터치 후 거래량 동반한 양봉(반등) 출현 시", sell:"수익성 낮은 과거 저가 수주 물량 악성 재고화 시", l:"업황 호조 대비 동종 업계 내 가장 강력한 저평가 메리트(PBR 1.1) 보유."},
+            {n:"LS", hot:false, s:"강력 매수", v:"8.5 / 0.7", r:60, p:0.6, o:"+1.8%p", b:"1.5", m:"하이브리드 충족", buy:"구리 선물 가격 전고점 돌파 및 PBR 0.8 이하 유지 시", sell:"구리 가격 하락 반전 및 글로벌 전력망 투자 지연 시", l:"원자재(구리) 인플레이션을 OPM으로 즉각 방어하며 수익을 극대화하는 지주사 구조."},
+            {n:"LS ELECT", hot:false, s:"관망 대기", v:"22.5 / 2.2", r:78, p:1.2, o:"+3.2%p", b:"1.8", m:"추세 이탈(매도)", buy:"조정으로 PER 15배 수준 회귀 및 외국인 5일 순매수 시", sell:"RSI 80 이상 구간에서 전량 매도 및 모멘텀 소멸 시", l:"북미 모멘텀은 장기적으로 유효하나 현재 수급 꼬임 및 기술적 과열(RSI 78) 구간."}
         ],
         'list-c': [
-            {n:"성광벤드", hot:true, s:"딥밸류 매수", v:"9.5 / 0.6", r:40, p:0.8, o:"+2.1%p", b:"1.8", m:"유입", l:"에너지 안보 피팅 수요. PBR 0.6은 극심한 저평가로 하방 경직성 강력."},
-            {n:"풍산", hot:true, s:"구조적 수혜", v:"8.2 / 0.7", r:65, p:0.5, o:"+3.2%p", b:"1.2", m:"순매수", l:"구리 및 탄약 수요 지속. G2G 계약 기반으로 실적의 질적 개선 뚜렷."},
-            {n:"LIG넥스원", hot:false, s:"과열 대기", v:"20.2 / 3.1", r:78, p:1.1, o:"+2.8%p", b:"4.2", l:"수주잔고비율 4.2로 압도적이나 RSI 과열. 조정 시 분할 진입."},
-            {n:"한화시스템", hot:false, s:"비중 확대", v:"15.4 / 1.2", r:50, p:0.9, o:"+1.5%p", b:"2.5", m:"매집", l:"위성/해양 안보 수혜. 수주잔고 기반의 안정적 성장 모멘텀 확보."},
-            {n:"태광", hot:false, s:"안전마진", v:"9.1 / 0.6", r:45, p:0.8, o:"+1.8%p", b:"1.7", l:"피팅 업황 회복 수혜. 자산가치(PBR) 대비 저평가 우량주."},
-            {n:"한화에어로", hot:false, s:"과열 대기", v:"25.1 / 3.5", r:82, p:1.2, o:"+4.2%p", b:"3.8", m:"매도우위", l:"방산 대장주이나 밸류 부담. 수출 일정 확인하며 조정 시 재공략."}
+            {n:"성광벤드", hot:true, s:"딥밸류 매수", v:"9.5 / 0.6", r:40, p:0.8, o:"+2.1%p", b:"1.8", m:"유입 초기", buy:"PBR 0.7 이하에서 북미 LNG 터미널 관련 수주 공시 시", sell:"자산가치 재평가 완료(PBR 1.2배 도달) 또는 OPM 꺾임 시", l:"에너지 안보 피팅 수요 증가. PBR 0.6배는 극심한 저평가로 청산가치 이하의 안전마진 확보."},
+            {n:"풍산", hot:true, s:"구조적 수혜", v:"8.2 / 0.7", r:65, p:0.5, o:"+3.2%p", b:"1.2", m:"추세 매수", buy:"구리 인플레 지속 하에 방산 부문 G2G 수주 계약 발표 시", sell:"글로벌 지정학적 분쟁 일괄 타결 및 재고 정상화 시", l:"구리 가격 우상향과 구조적인 탄약 쇼티지가 맞물려 실적의 질적/양적 동반 개선."},
+            {n:"한화시스템", hot:false, s:"비중 확대", v:"15.4 / 1.2", r:50, p:0.9, o:"+1.5%p", b:"2.5", m:"매집 진행 중", buy:"저궤도 위성망 및 무인화 체계 관련 국방부 대형 수주 시", sell:"자체 우주항공 R&D 비용 폭증으로 단기 OPM 훼손 시", l:"디지털 안보망 및 위성 통신 수혜. 수주잔고 기반의 안정적인 하단선 구축 완료."},
+            {n:"한화에어로", hot:false, s:"과열 대기", v:"25.1 / 3.5", r:82, p:1.2, o:"+4.2%p", b:"3.8", m:"차익 실현(매도)", buy:"수출 공백기 우려로 주가 20% 이상 급락(과매도) 출현 시", sell:"현재 시점 분할 매도. 경쟁 심화로 수주 마진율 하락 시", l:"K-방산 수출 대장주로서의 입지는 확고하나, 밸류에이션 부담이 가중된 상태."}
         ],
         'list-d': [
-            {n:"한화엔진", hot:true, s:"강력 추천", v:"12.3 / 1.8", r:60, p:0.7, o:"+6.2%p", b:2.6, m:"순매수", l:"친환경 엔진 독점. OPM 턴어라운드가 이 그룹의 핵심 투자 포인트."},
-            {n:"동성화인텍", hot:true, s:"수익화 안정", v:"11.4 / 1.5", r:55, p:0.8, o:"+2.5%p", b:3.1, m:"유입", l:"LNG 보냉재 쇼티지 수혜. 수주잔고비율 3.1로 안정적 실적 구간 진입."},
-            {n:"오리엔탈정공", hot:false, s:"후행 수혜", v:"15.1 / 1.2", r:50, p:0.9, o:"+3.1%p", b:1.6, m:"매집", l:"도크 가동률 상승에 따른 기자재 물량 증가. 실적 연동성 확인."},
-            {n:"고영", hot:false, s:"바닥 확인", v:"35.2 / 2.5", r:40, p:1.5, o:"바닥통과", b:0.7, m:"관망", l:"검사장비 회복 및 로봇 신사업 매출 가시화 여부가 리레이팅 관건."},
-            {n:"세진중공업", hot:false, s:"점진 확대", v:"14.5 / 1.4", r:55, p:0.8, o:"+2.2%p", b:2.1, l:"후방 기자재 물량 수혜. 실적 턴어라운드 속도 모니터링 필수."},
-            {n:"HD현대마린", hot:false, s:"과열 대기", v:"45.2 / 8.2", r:85, p:2.1, o:"+5.1%p", b:"N/A", m:"매도우위", l:"AS 수익성은 탁월하나 수급 과열 리스크 선제적 관리."}
+            {n:"한화엔진", hot:true, s:"강력 추천", v:"12.3 / 1.8", r:60, p:0.7, o:"+6.2%p", b:"2.6", m:"하이브리드 충족", buy:"친환경/이중연료 엔진 단가 인상 확인 및 20일선 돌파 시", sell:"환경 규제(CII) 정책 완화 또는 엔진 수주잔고 감소 시", l:"친환경 선박 엔진 교체 수요를 독점. 저가 수주 물량 해소 후 OPM 팽창의 정점 구간."},
+            {n:"동성화인텍", hot:true, s:"수익화 안정", v:"11.4 / 1.5", r:55, p:0.8, o:"+2.5%p", b:"3.1", m:"매집 완료", buy:"원자재 가격 하락으로 롤마진(스프레드) 확대 확인 시", sell:"조선사들의 LNG선 발주 사이클 종료 징후 발생 시", l:"LNG 보냉재의 확고한 진입장벽. 수주잔고비율 3.1이 향후 3년의 캐시플로우 보장."},
+            {n:"고영", hot:false, s:"바닥 확인", v:"35.2 / 2.5", r:40, p:1.5, o:"바닥통과", b:0.7, m:"관망(중립)", buy:"의료로봇 신사업 매출 비중 10% 돌파 확인 및 거래량 급증 시", sell:"기존 본업(검사장비)의 턴어라운드 지연 및 OPM 적자 시", l:"기존 사업의 업황 바닥 통과 중이며, 로봇 신사업 매출 가시화 여부가 리레이팅의 핵심."}
         ]
     };
+
     function render() {
         for (const [id, items] of Object.entries(investmentData)) {
             const container = document.getElementById(id);
             if(!container) continue;
+            
             container.innerHTML = '';
+            
             items.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'item-row';
+                
+                // Status Pill Color Logic
                 const pillColor = item.s.includes('강력') || item.s.includes('추천') ? 'var(--strong-buy)' : (item.s.includes('대기') ? 'var(--wait)' : 'var(--buy)');
-                card.innerHTML = `<div class="item-top" onclick="this.nextElementSibling.classList.toggle('active')"><div class="corp-name">${item.n} ${item.hot ? '<span class="hot-tag">HOT 수혜</span>' : ''}</div><div class="status-pill" style="background:${pillColor}">${item.s}</div></div><div class="item-content"><div class="grid-data"><div class="data-box"><span class="label">PER / PBR</span><span class="val">${item.v}</span></div><div class="data-box"><span class="label">RSI(14)</span><span class="val">${item.r}</span></div><div class="data-box"><span class="label">PEG</span><span class="val">${item.p}</span></div><div class="data-box"><span class="label">OPM YoY</span><span class="val">${item.o}</span></div><div class="data-box"><span class="label">수주잔고비율</span><span class="val">${item.b}</span></div><div class="data-box"><span class="label">스마트머니</span><span class="val">${item.m}</span></div></div><div class="why-box"><strong>Why:</strong> ${item.l}</div><div class="link-row"><a href="https://search.naver.com/search.naver?query=${item.n}+주가" target="_blank" class="btn-link">실시간 차트</a><a href="https://dart.fss.or.kr/dsab001/main.do?textCrpNm=${item.n}&autoSearch=true" target="_blank" class="btn-link">DART 공시</a></div></div>`;
+                
+                card.innerHTML = `
+                    <div class="item-top" onclick="this.nextElementSibling.classList.toggle('active')">
+                        <div class="corp-name">${item.n} ${item.hot ? '<span class="hot-tag">HOT 수혜</span>' : ''}</div>
+                        <div class="status-pill" style="background:${pillColor}">${item.s}</div>
+                    </div>
+                    <div class="item-content">
+                        <div class="grid-data">
+                            <div class="data-box"><span class="label">PER / PBR</span><span class="val">${item.v}</span></div>
+                            <div class="data-box"><span class="label">RSI(14)</span><span class="val">${item.r}</span></div>
+                            <div class="data-box"><span class="label">PEG</span><span class="val">${item.p}</span></div>
+                            <div class="data-box"><span class="label">OPM YoY</span><span class="val">${item.o}</span></div>
+                            <div class="data-box"><span class="label">수주잔고비율</span><span class="val">${item.b}</span></div>
+                            <div class="data-box"><span class="label">스마트 머니</span><span class="val">${item.m}</span></div>
+                        </div>
+                        
+                        <div class="target-container">
+                            <div class="target-box target-buy">
+                                🟢 <b>매수 타점:</b> ${item.buy}
+                            </div>
+                            <div class="target-box target-sell">
+                                🔴 <b>매도 타점:</b> ${item.sell}
+                            </div>
+                        </div>
+
+                        <div class="why-box">
+                            <strong>📝 기업 분석 논리:</strong><br>${item.l}
+                        </div>
+
+                        <div class="link-row">
+                            <a href="https://search.naver.com/search.naver?query=${item.n}+주가" target="_blank" class="btn-link">실시간 차트</a>
+                            <a href="https://dart.fss.or.kr/dsab001/main.do?textCrpNm=${item.n}&autoSearch=true" target="_blank" class="btn-link">DART 공시</a>
+                        </div>
+                    </div>
+                `;
                 container.appendChild(card);
             });
         }
     }
+    
+    // 렌더링 실행
     document.addEventListener("DOMContentLoaded", render);
 </script>
 </body>
